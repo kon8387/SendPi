@@ -309,7 +309,7 @@ Choose Create New policy
 
 ## Video
 
-### Link: https://youtu.be/HrpM4NIARHs
+### Link: https://youtu.be/HrpM4NIARHs or click image below to watch the video
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=HrpM4NIARHs
 " target="_blank"><img src="https://github.com/kon8387/SendPi/blob/master/img/youtube.png"
