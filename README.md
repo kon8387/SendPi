@@ -146,7 +146,7 @@ Again Click on the checkbox besides the certificate we created and select the ac
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/18.png)
 
-Select the thing we created and click attach to attach the thing certificate to our thing
+- Select the thing we created and click attach to attach the certificate to our thing
 
 Go back to the Manage > things sub-menu and chose the thing we created
 
@@ -154,7 +154,7 @@ On the left sub panel select interact, we will be shown the thing’s endpoint
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/19.png)
 
-Copy down this value and replace the endpoint values in the server.py,dht.py and node-red MQTT input configuration (Shown in Node-Red setup). 
+Copy down this value and replace the endpoint values in the server.py,dht.py and node-red MQTT input configuration (Shown in Node-Red setup).
 
 
 ### EC2 Web Application setup
