@@ -12,7 +12,7 @@
 * Final RPI set-up
 * Hardware Requirements
 * Hardware Setup
-* Cloud Setup
+* AWS Cloud Setup
   - Create AWS Thing
   - EC2 Web Application
   - DynamoDB Setup
@@ -168,3 +168,148 @@ Choose Create New policy
 ![](https://github.com/kon8387/SendPi/blob/master/img/21.png)
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/22.png)
+
+- Click launch and choose to create a new key-pair. Save this file
+
+![](https://github.com/kon8387/SendPi/blob/master/img/23.png)
+
+- Then, to access EC2, you would need download and use these programs
+1. Putty to ssh into EC2 instance
+2. Puttygen to generate private public key, used for putty and scp
+3. Winscp to transfer files to the EC2
+
+- Open puttygen and load the keyfile and click the “save private key” option. This will be a .ppk file
+
+![](https://github.com/kon8387/SendPi/blob/master/img/24.png)
+
+- Then, using putty, you can use the host name “ec2-user@**ec2 dns**” where **ec2 dns** is the public dns provided in the EC2 console.
+
+![](https://github.com/kon8387/SendPi/blob/master/img/25.png)
+
+- Then, specify the key file which would be the .ppk file gotten previously
+
+![](https://github.com/kon8387/SendPi/blob/master/img/26.png)
+
+- Now you can log into the EC2 machine
+
+- To transfer files over to EC2, you can use WinSCP. Specify the host name as the DNS provided by EC2 and the username as “ec2-user”. Then you can proceed to transfer files
+
+![](https://github.com/kon8387/SendPi/blob/master/img/27.png)
+
+- You can now move the “web server” folder into EC2.
+
+![](https://github.com/kon8387/SendPi/blob/master/img/28.png)
+
+- Opening up the web folder we have to edit the server.py file.The credentals and host needed for dynamodb are hardcoded into server.py. Please change these values to your own accounts values.
+
+- You can find your credential info by looking into the aws site and clicking account details
+
+![](https://github.com/kon8387/SendPi/blob/master/img/10.png)
+
+- Click show CLI to see the crendtials information, copy this credentials information and change it in the hardcoded server.py.Take note of the credentials, it will be used again in the Raspberry pi Setup
+
+![](https://github.com/kon8387/SendPi/blob/master/img/29.png)
+
+- Transfer the certificate.perm.crt, private.pem.key,rootca.perm into the webfolder.Ensure that you have the needed certificate files in the same file level with your server.py
+
+![](https://github.com/kon8387/SendPi/blob/master/img/30.png)
+
+- Install the necessary modules onto EC2 using putty's command line
+`sudo  pip install boto3, AWSIoTPythonSDK,gevent,paho-mqtt,numpy,flask`
+
+- Now you can start up the server, using putty which is still connected, run
+`sudo python server.py`
+
+![](https://github.com/kon8387/SendPi/blob/master/img/31.png)
+
+- Use your web browser and go to the public ipv4 address provided by EC2 and you should see the web application
+
+![](https://github.com/kon8387/SendPi/blob/master/img/32.png)
+
+
+### DynamoDB setup
+- In the AWS Console,go to AWS DynamoDB and create a table with the keys “deviceid” and “datetimeid”
+
+![](https://github.com/kon8387/SendPi/blob/master/img/33.png)
+
+- Once you successfully run dht.py on your raspberry pi, the dynamodb will automatically have the temperature and humidity column.
+
+![](https://github.com/kon8387/SendPi/blob/master/img/34.png)
+
+
+### Raspberry Pi Setup
+- First connect the hardware as seen in the Hardware setup section
+
+
+- Install the necessary modules
+`sudo  pip install boto3, AWSIoTPythonSDK,gevent,paho-mqtt,numpy`
+
+- Run the command `aws configure` and paste in the aws credentals into your aws account.
+
+- Move the folder pi into your raspberry pi
+
+- Move your various AWS certificate files into the folder
+
+- Ensure that you have the various certificate files in the same level as your dht.py
+
+![](https://github.com/kon8387/SendPi/blob/master/img/35.png)
+
+- Next import the node_red_diagram.txt into node red. **An additional copy** is uploaded as apendix on the last segment of this readme
+
+![](https://github.com/kon8387/SendPi/blob/master/img/36.png)
+
+- Enusre the diagram looks like this(refer below)
+
+![](https://github.com/kon8387/SendPi/blob/master/img/37.png)
+
+- Double click the MQTT node
+
+![](https://github.com/kon8387/SendPi/blob/master/img/38.png)
+
+- Click the edit icon next to the server
+
+![](https://github.com/kon8387/SendPi/blob/master/img/39.png)
+
+- Enter your AWS endpoint in the server text box, then click the edit icon in the TLS configuration
+
+![](https://github.com/kon8387/SendPi/blob/master/img/40.png)
+
+- Change the Credentials to your 3 credential files in the mqtt function and test the connection
+
+![](https://github.com/kon8387/SendPi/blob/master/img/41.png)
+
+- Deploy the node_red_diagram to recieve MQTT messages to turn the LED ON/OFF
+
+#### That concludes the setup for this porject
+
+### Running the project
+###### To run the Project
+
+- On your various raspberry pi, launch node-red and deploy the configured flow diagram
+
+![](https://github.com/kon8387/SendPi/blob/master/img/37.png)
+
+- Next change directory to where the dht.py is stored and run the dht.py to read input from the DHT sensor and insert to the AWS dynamo db.
+`python dht.py`
+\*Disclaimer try running without sudo if there is an exception or refreshing your AWS credential information
+
+![](https://github.com/kon8387/SendPi/blob/master/img/34.png)
+
+- Next using putty, establish a connection to your AWS EC2 instance.
+
+
+- Run the server.py
+`sudo python server.py`
+\*Disclaimer try running without sudo if there is an exception or refreshing your AWS credential information
+
+- Navigate to your EC2’s public IPV4 address and the web application should be deployed.
+
+![](https://github.com/kon8387/SendPi/blob/master/img/32.png)
+
+## Video
+
+### Link: https://youtu.be/HrpM4NIARHs
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=HrpM4NIARHs
+" target="_blank"><img src="http://img.youtube.com/vi/HrpM4NIARHs/0.jpg"
+alt="IMAGE ALT TEXT HERE" width="90%" height="" border="2" /></a>
