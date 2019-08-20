@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>SB Admin 2 - Dashboard</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="static/vendor/fontawesome-free/static/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="static/css/sb-admin-2.min.css" rel="stylesheet">
+  <!-- Scripts here, SEND HELP -->
+  <style> #chartDiv {width:100%;}</style>
+    <title>Google Charts with Flask</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+         google.charts.load('current', {'packages':['corechart','table']});
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(googlecharts_is_ready);
+
+        var chart;
+        var graphdata;
+        var deviceid = 'deviceid_HC';
+
+        function change_device(newdeviceid){
+          deviceid = newdeviceid
+          getNewData()
+        }
+
+        function reset_status_messages(){
+            $("#status").html("")
+        }
+
+        function googlecharts_is_ready(){
+            $("#buttonloadchart").show()
+            $("#buttonloadchart").click()
+            $("#status").html("Google charts is ready")
+        }
+
+        function turnon(){
+          $.ajax({url: "/writeLED/On",
+                  success: function(result){
+                                $("#lightstatus").html(result);
+                                }
+                })
+        }
+
+
+        function turnoff(){
+          $.ajax({url: "/writeLED/Off",
+                  success: function(result){
+                                $("#lightstatus").html(result);
+                                }
+          })
+        }
+
+        function getNewData(){
+            $("#status").html("Fetching data to plot graph...");
+            jQuery.ajax({url: "/api/getdata/" + deviceid,
+                    type: 'POST',
+                    error: function(jqXHR,textStatus, errorThrown ){
+                      console.log("Error while ajax:" + textStatus)
+                    },
+                    success: function(ndata, textStatus, xhr){
+                                  $("#status").html("Data fetched! Now plotting graph!");
+                                  chartdata = ndata.chart_data
+                                  graphdata = createDataTable(chartdata, "temp")
+                                  drawLineChart(graphdata, "temp")
+                                  drawDataTable(graphdata, "temp")
+                                  graphdata = createDataTable(chartdata, "hum")
+                                  drawLineChart(graphdata, "hum")
+                                  drawDataTable(graphdata, "hum")
+                                  $("#status").html("Graph plotted");
+                    }
+            })
+          } //end getNewData
+
+        function createDataTable(newdata, type){
+            graphdata = new google.visualization.DataTable();
+            graphdata.addColumn('string', 'Time');
+            var newdata = JSON.parse(newdata);
+            if (type == "temp"){
+              graphdata.addColumn('number', 'Temperature');
+              for (i = 0; i < newdata.length; i++) {
+                  datetime = newdata[i].datetimeid
+                  datetime = datetime.substring(0, 19)
+                  jsdatetime = new Date(Date.parse(datetime));
+                  jstime = jsdatetime.toLocaleTimeString();
+                  temp = parseInt(newdata[i].temperature);
+                  graphdata.addRows([[jstime,temp]]);
+              }//end for
+            }else{
+              graphdata.addColumn('number', 'Humidity');
+              for (i = 0; i < newdata.length; i++) {
+                  datetime = newdata[i].datetimeid
+                  datetime = datetime.substring(0, 19)
+                  jsdatetime = new Date(Date.parse(datetime));
+                  jstime = jsdatetime.toLocaleTimeString();
+                  hum = parseInt(newdata[i].humidity);
+                  graphdata.addRows([[jstime,hum]]);
+              }//end for
+            }
+            return graphdata
+        }
+
+        function drawDataTable(graphdata, type){
+            var table = new google.visualization.Table(document.getElementById('table_' + type));
+            table.draw(graphdata, {showRowNumber: true, width: '100%', height: '100%'});
+
+        }//end drawTable
+
+        function drawLineChart(graphdata, type) {
+            chart = new google.visualization.LineChart(
+            document.getElementById('chart_' + type));
+            chart.draw(graphdata, {legend: 'none', vAxis: {baseline: 0},
+                colors: ['#A0D100']});
+            return
+        } //end drawChart
+
+        $(document).ready(function(){
+            reset_status_messages()
+
+            setInterval(function () {
+                getNewData()
+            }, 3000);
+        });
+
+</script>
+
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+      <!-- Sidebar - Brand -->
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
+        <div class="sidebar-brand-icon rotate-n-15">
+          <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">TempBuddy</div>
+      </a>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item active">
+        <a class="nav-link" href="/">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Dashboard</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      <div class="sidebar-heading">
+        Menu
+      </div>
+
+      <li class="nav-item">
+        <a class="nav-link" href="/">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>Home</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider d-none d-md-block">
+
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+          <!-- Topbar Navbar -->
+          <ul class="navbar-nav ml-auto">
+            <div class="topbar-divider d-none d-sm-block"></div>
+          </ul>
+
+        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Content Row -->
+          <div class="row">
+
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <input id="buttonloadchart" type="button" onclick="getNewData()" value="Update graph">
+                      <div id="status" class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <h6 class="m-0 font-weight-bold text-primary">Led control</h6>
+                      <input id="ledbtn" type="button" onclick="turnon()" value="On led">
+                      <input id="ledbtn" type="button" onclick="turnoff()" value="Off led">
+                      <div id="lightstatus" class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                    </br>
+                      <h6 class="m-0 font-weight-bold text-primary">Device view</h6>
+                      <input id="listbtn" type="button" onclick="change_device('deviceid_HC')" value="HC device">
+                      <input id="listbtn" type="button" onclick="change_device('deviceid_ken')" value="ken device">
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Content Row -->
+
+          <div class="row">
+
+            <!-- Area Chart -->
+            <div class="col-xl-6 col-lg-7">
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Temperature</h6>
+                  <div class="dropdown no-arrow">
+                      <div id="chart_temp" style="width:100%"></div>
+                      <div id="table_temp" style="width:100%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Area Chart -->
+            <div class="col-xl-6 col-lg-7">
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Humidity</h6>
+                  <div class="dropdown no-arrow">
+                    <div id="chart_hum" style="width:100%"></div>
+                    <div id="table_hum" style="width:100%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright &copy; TempBuddy 2019</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="static/vendor/jquery/jquery.min.js"></script>
+  <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="static/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="static/vendor/chart.js/Chart.min.js"></script>
+
+  <!-- Page level custom scripts -->
+  <script src="js/demo/chart-area-demo.js"></script>
+  <script src="js/demo/chart-pie-demo.js"></script>
+
+</body>
+
+</html>
