@@ -86,41 +86,41 @@ This project requires the setup of AWS dynamodb,IoT Core and EC2
 
 ### IoT Core setup
 
-Login to your aws account, click on aws console and using the serach function search for the IoT core module and click get started.
+- Login to your aws account, click on aws console and using the serach function search for the IoT core module and click get started.
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/10.png)
 
-On the left side panel look for the tab Manage, next click things
+- On the left side panel look for the tab Manage, next click things
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/11.png)
 
-click on create and select create a single thing
+- Click on create and select create a single thing
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/12.png)
 
-Enter the name for your device and leave everything else on default
+- Enter the name for your device and leave everything else on default
 ![](https://github.com/kon8387/SendPi/blob/master/img/13.png)
 
-Next, click on the first option, Create certificate. Downnload all the 4 files.
+- Next, click on the first option, Create certificate. Downnload all the 4 files.
 
-For the root CA file download the RSA 2048, VeriSign Class 3 public primary G5 root CA certificate option. Right click and save the key as rootca.perm. Click activate to activate the certificate.
+- For the root CA file download the RSA 2048, VeriSign Class 3 public primary G5 root CA certificate option. Right click and save the key as rootca.perm. Click activate to activate the certificate.
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/14.png)
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/15.png)
 
-Rename the 4 files to these filenames
+- Rename the 4 files to these filenames
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/16.png)
 
-We will use these files later on in the Setup
+- We will use these files later on in the Setup
 
-After clicking Activate Certificate, Next click attach policy, leave it blank for now and click register to register your thing.
+- After clicking Activate Certificate, Next click attach policy, leave it blank for now and click register to register your thing.
 
-On the left dashboard, select policies under the secure sub-menu
+- On the left dashboard, select policies under the secure sub-menu
 Choose Create New policy
 
-On the create a policy page key in the
+- On the create a policy page key in the
 
 |Variable       |  Value    |
 |---------------|-----------|
@@ -128,42 +128,42 @@ On the create a policy page key in the
 |Action:        |  iot:*    |
 |Resource ARN:  | *         |
 
-Ensure the "allow" tick box is checked
+- Ensure the "allow" tick box is checked
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/17.png)
 
-Click on Create the Policy
+- Click on Create the Policy
 
-Going back to the left Dashboard, Click ceritificates under the security sub-menu
+- Going back to the left Dashboard, Click ceritificates under the security sub-menu
 
-Click on the checkbox besides the certificate we created and select the action button on the top right. Click on attach Policy
+- Click on the checkbox besides the certificate we created and select the action button on the top right. Click on attach Policy
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/18.png)
 
-Select the policy you created and click on attach to attach this policy to the certificate
+- Select the policy you created and click on attach to attach this policy to the certificate
 
-Again Click on the checkbox besides the certificate we created and select the action button on the top right. Click on attach thing
+- Again Click on the checkbox besides the certificate we created and select the action button on the top right. Click on attach thing
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/18.png)
 
 - Select the thing we created and click attach to attach the certificate to our thing
 
-Go back to the Manage > things sub-menu and chose the thing we created
+- Go back to the Manage > things sub-menu and chose the thing we created
 
-On the left sub panel select interact, we will be shown the thing’s endpoint
+- On the left sub panel select interact, we will be shown the thing’s endpoint
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/19.png)
 
-Copy down this value and replace the endpoint values in the server.py,dht.py and node-red MQTT input configuration (Shown in Node-Red setup).
+- Copy down this value and replace the endpoint values in the server.py,dht.py and node-red MQTT input configuration (Shown in Node-Red setup).
 
 
 ### EC2 Web Application setup
 
-In the aws console, create an EC2 instance and select “amazon linux AMI”
+- In the aws console, create an EC2 instance and select “amazon linux AMI”
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/20.png)
 
-Then follow the settings below for instance type and security group.
+- Then follow the settings below for instance type and security group.
 
 ![](https://github.com/kon8387/SendPi/blob/master/img/21.png)
 
